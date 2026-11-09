@@ -1,18 +1,41 @@
-# Configuration parameters skeleton for Leonardo da Vinci Robot
+# Comprehensive Engineering Parameters for Leonardo da Vinci Robot System
+
 leonardo_kinematics:
   ros__parameters:
-    robot_radius_m: 0.15
-    wheel_radius_m: 0.029
-    max_linear_speed_mps: 0.2
-    max_angular_speed_radps: 1.5
+    robot_radius_m: 0.15           # Distance from chassis center to wheel contact (R)
+    wheel_radius_m: 0.029          # Radius of 58mm omni-wheels (r)
+    odom_frame: "odom"
+    base_frame: "base_footprint"
+    publish_tf: true
+    max_linear_speed_mps: 0.20
+    max_angular_speed_radps: 1.50
 
 leonardo_esp32_bridge:
   ros__parameters:
     serial_port: "/dev/ttyACM0"
     baud_rate: 115200
-    timeout_sec: 1.0
+    timeout_sec: 0.1
+    reconnect_interval_sec: 2.0
+    telemetry_frequency_hz: 50.0
+
+leonardo_drawing_controller:
+  ros__parameters:
+    default_draw_speed: 0.05       # Speed while pen is DOWN on paper (m/s)
+    default_transit_speed: 0.12    # Speed while pen is UP travelling (m/s)
+    pen_dwell_delay_sec: 0.25      # Mechanical settling delay after ACK P0/P1
 
 leonardo_safety:
   ros__parameters:
-    safety_distance_m: 0.30
-    clearance_dwell_sec: 2.0
+    safety_radius_m: 0.30          # Emergency halt bubble (m)
+    clearance_time_sec: 2.0        # Time obstacle must be absent before resume (s)
+
+leonardo_vision:
+  ros__parameters:
+    rdp_epsilon: 1.5               # Polyline decimation tolerance (pixels)
+    min_contour_length: 15         # Minimum points to qualify as a drawable stroke
+
+leonardo_homography:
+  ros__parameters:
+    canvas_frame: "canvas"
+    odom_frame: "odom"
+    publish_rate_hz: 10.0

@@ -1,0 +1,18 @@
+# Goal
+string image_path
+float32 draw_speed
+float32 scale_factor
+bool auto_homography
+---
+# Result
+bool success
+int32 strokes_completed
+float32 total_drawing_time_sec
+string message
+---
+# Feedback
+int32 current_stroke_index
+int32 total_strokes
+float32 percent_complete
+string current_state
+geometry_msgs/Pose2D current_robot_pose

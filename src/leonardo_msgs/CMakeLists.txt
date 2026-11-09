@@ -5,19 +5,24 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
+find_package(action_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PenCommand.msg"
   "msg/WheelSpeeds.msg"
   "msg/CanvasPose.msg"
   "msg/DrawStatus.msg"
-  DEPENDENCIES geometry_msgs std_msgs builtin_interfaces
+  "msg/StrokeTrajectory.msg"
+  "srv/SetPen.srv"
+  "srv/CalibrateCanvas.srv"
+  "srv/EmergencyStop.srv"
+  "action/DrawArtwork.action"
+  DEPENDENCIES geometry_msgs std_msgs builtin_interfaces action_msgs
 )
 
 if(BUILD_TESTING)

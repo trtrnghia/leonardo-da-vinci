@@ -1,0 +1,6 @@
+string image_path
+---
+bool success
+geometry_msgs/Pose2D canvas_origin
+float32 pixel_to_meter_scale
+string message
