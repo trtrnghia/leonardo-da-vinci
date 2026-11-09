@@ -6,7 +6,7 @@ ROS_DISTRO := jazzy
 all: build
 
 help:
-	@echo "Available commands:"
+	@echo "Available commands for Leonardo da Vinci Robot:"
 	@echo "  make build           - Build all ROS 2 packages using colcon"
 	@echo "  make test            - Run all unit tests with colcon test"
 	@echo "  make launch          - Launch full system with bringup.launch.py"
@@ -28,10 +28,10 @@ view:
 	source /opt/ros/$(ROS_DISTRO)/setup.bash && source install/setup.bash && ros2 launch leonardo_bringup view_robot.launch.py
 
 firmware-build:
-	cd src/leonardo_firmware && pio run
+	cd firmware && pio run
 
 firmware-upload:
-	cd src/leonardo_firmware && pio run --target upload
+	cd firmware && pio run --target upload
 
 clean:
 	rm -rf build install log
