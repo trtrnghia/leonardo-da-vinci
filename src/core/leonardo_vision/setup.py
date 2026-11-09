@@ -1,10 +1,12 @@
+"""Package setup configuration for leonardo_vision."""
+
 from setuptools import find_packages, setup
 
 package_name = 'leonardo_vision'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -14,8 +16,8 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='davinci',
-    maintainer_email='davinci@todo.todo',
-    description='Computer vision, homography, calibration and vectorization',
+    maintainer_email='davinci@robotics.local',
+    description='Computer vision and homography engine for Leonardo robot',
     license='Apache-2.0',
     extras_require={
         'test': [

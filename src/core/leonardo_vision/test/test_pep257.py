@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""PEP 257 docstring test."""
+
 from ament_pep257.main import main
+
 import pytest
 
 
-@pytest.mark.linter
 @pytest.mark.pep257
+@pytest.mark.linter
 def test_pep257():
-    rc = main(argv=['.', 'test'])
+    """Test PEP 257 docstrings."""
+    rc = main(argv=['.'])
     assert rc == 0, 'Found code style errors / warnings'

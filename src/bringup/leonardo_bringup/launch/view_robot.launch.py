@@ -1,12 +1,17 @@
+"""Launch description for visualizing Leonardo robot in RViz2."""
+
 import os
+
 from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import Command
+
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    """Generate launch description for RViz2 robot visualization."""
     pkg_bringup = get_package_share_directory('leonardo_bringup')
     xacro_file = os.path.join(pkg_bringup, 'urdf', 'leonardo.urdf.xacro')
     rviz_config = os.path.join(pkg_bringup, 'rviz', 'leonardo.rviz')

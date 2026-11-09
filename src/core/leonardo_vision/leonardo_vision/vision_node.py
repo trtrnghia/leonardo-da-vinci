@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
-"""
-Vision Node Skeleton for Leonardo da Vinci Robot.
-"""
+"""Vision Node Skeleton for Leonardo da Vinci Robot."""
+
+from leonardo_msgs.srv import CalibrateCanvas
 
 import rclpy
 from rclpy.node import Node
-from leonardo_msgs.srv import CalibrateCanvas
 
 
 class VisionNode(Node):
+    """Computer vision node extracting strokes and handling calibration."""
+
     def __init__(self):
+        """Initialize the vision node."""
         super().__init__('leonardo_vision')
-        # TODO: Setup parameters, subscribers, publishers, services
         self.calib_srv = self.create_service(
-            CalibrateCanvas, '/vision/calibrate_canvas', self.calibrate_canvas_callback
+            CalibrateCanvas,
+            '/vision/calibrate_canvas',
+            self.calibrate_canvas_callback
         )
         self.get_logger().info('Leonardo Vision node initialized (skeleton).')
 
     def calibrate_canvas_callback(self, request, response):
-        # TODO: Process canvas image calibration
+        """Process canvas image calibration request."""
+        _ = request
         response.success = True
         response.message = 'Skeleton response'
         return response
 
 
 def main(args=None):
+    """Run vision node main loop."""
     rclpy.init(args=args)
     node = VisionNode()
     try:

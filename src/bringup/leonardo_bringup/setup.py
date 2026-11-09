@@ -1,5 +1,8 @@
-import os
+"""Package setup configuration for leonardo_bringup."""
+
 from glob import glob
+import os
+
 from setuptools import find_packages, setup
 
 package_name = 'leonardo_bringup'
@@ -21,7 +24,7 @@ setup(
     zip_safe=True,
     maintainer='davinci',
     maintainer_email='davinci@robotics.local',
-    description='Bringup launch files, configuration, URDF description and ESP32 bridge',
+    description='Bringup launch files and configuration for Leonardo robot',
     license='Apache-2.0',
     extras_require={
         'test': [
