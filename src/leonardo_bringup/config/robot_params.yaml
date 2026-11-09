@@ -1,0 +1,18 @@
+# Configuration parameters skeleton for Leonardo da Vinci Robot
+leonardo_kinematics:
+  ros__parameters:
+    robot_radius_m: 0.15
+    wheel_radius_m: 0.029
+    max_linear_speed_mps: 0.2
+    max_angular_speed_radps: 1.5
+
+leonardo_esp32_bridge:
+  ros__parameters:
+    serial_port: "/dev/ttyACM0"
+    baud_rate: 115200
+    timeout_sec: 1.0
+
+leonardo_safety:
+  ros__parameters:
+    safety_distance_m: 0.30
+    clearance_dwell_sec: 2.0
