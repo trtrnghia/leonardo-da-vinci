@@ -1,9 +1,7 @@
 """
-Trajectory Generator and Waypoint Interpolator for Leonardo da Vinci Robot.
-Generates smooth velocity setpoints along polyline segments.
+Trajectory Generator Skeleton for Leonardo da Vinci Robot.
 """
 
-import math
 from typing import List, Tuple
 
 
@@ -16,18 +14,7 @@ class TrajectoryGenerator:
         self, p1: Tuple[float, float], p2: Tuple[float, float], step_size: float = 0.005
     ) -> List[Tuple[float, float]]:
         """
-        Interpolates intermediate waypoints along a straight segment with fixed spatial resolution.
+        Interpolate intermediate waypoints between p1 and p2.
         """
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-        dist = math.hypot(dx, dy)
-
-        if dist < 1e-6:
-            return [p1]
-
-        steps = max(1, int(math.ceil(dist / step_size)))
-        waypoints = []
-        for i in range(steps + 1):
-            ratio = float(i) / float(steps)
-            waypoints.append((p1[0] + dx * ratio, p1[1] + dy * ratio))
-        return waypoints
+        # TODO: Implement waypoint interpolation with velocity profile
+        pass
