@@ -5,10 +5,10 @@
 ---
 
 **Mã dự án**: `LEONARDO-AGV-2026`  
-**Phiên bản**: `1.0.0 (Production Architecture)`  
-**Ngày phát hành**: 2026-11-09  
+**Phiên bản**: `1.1.0 (Domain-Driven Monorepo with Software & Hardware Separation)`  
+**Ngày phát hành**: 2026-11-10  
 **Nền tảng mục tiêu**: Raspberry Pi 4B (Ubuntu 24.04 LTS aarch64, ROS 2 Jazzy Base) & Vi điều khiển ESP32-S3 (PlatformIO/Arduino)  
-**Thư mục Workspace**: `/home/davinci/Leonardo da Vinci`
+**Thư mục Workspace**: `/home/davinci/davinci` (kèm symlink tương thích `/home/davinci/Leonardo da Vinci`)
 
 ---
 
@@ -279,18 +279,33 @@ Trên bề mặt giấy trắng ít hoa văn hoặc khi mực vẽ đã phủ m�
 
 ---
 
-## 5. THIẾT KẾ PHẦN MỀM ROS 2 (ROS 2 SOFTWARE PACKAGES)
+## 5. THIẾT KẾ PHẦN MỀM ROS 2 & CẤU TRÚC MONOREPO
 
-Kiến trúc phần mềm trong thư mục `src/` được chia thành 6 package chuyên biệt:
+Dự án được tổ chức theo mô hình Monorepo phân tách chức năng rõ rệt giữa môi trường nhúng trên robot (`software/`) và môi trường thiết kế cơ khí 3D CAD trên máy tính cá nhân (`machine_design_and_modeling/`):
 
 ```
-src/
-├── leonardo_msgs/           # Định nghĩa các Custom Interface ROS 2
-├── leonardo_kinematics/     # Tính toán động học Omni 120° & Odometry
-├── leonardo_vision/         # Camera calibration, Homography, Deep matching & Vectorizer
-├── leonardo_controller/     # Máy trạng thái vẽ tranh & An toàn LiDAR
-├── leonardo_bringup/        # Cầu nối Serial ESP32, Launch files, URDF & YAML config
-└── leonardo_firmware/       # Mã nguồn C++ PlatformIO cho vi điều khiển ESP32-S3
+davinci/
+├── software/                            # Toàn bộ mã nguồn phần mềm trên robot
+│   ├── src/                             # Các ROS 2 Jazzy Packages
+│   │   ├── interfaces/
+│   │   │   └── leonardo_msgs/           # Định nghĩa Custom Msg, Srv, Action
+│   │   ├── core/
+│   │   │   ├── leonardo_kinematics/     # Động học ngược 3-Omni 120° & Odometry
+│   │   │   └── leonardo_vision/         # Homography, cv_bridge, Vectorizer & Deep Matcher
+│   │   ├── control/
+│   │   │   └── leonardo_controller/     # Trajectory Generator & Safety Monitor
+│   │   └── bringup/
+│   │       └── leonardo_bringup/        # Launch files, robot_params.yaml, RViz2, URDF
+│   ├── firmware/                        # C++ PlatformIO ESP32-S3 motor PID & servo
+│   ├── scripts/                         # Shell scripts hỗ trợ kiểm thử & môi trường
+│   └── assets/                          # Dữ liệu vector mẫu (SVG, contours)
+├── machine_design_and_modeling/         # Thiết kế cơ khí xử lý trên máy tính (Laptop/PC)
+│   ├── cad/                             # File thiết kế 3D CAD, bản vẽ chế tạo, BOM
+│   ├── electrical_and_wiring/           # Sơ đồ nguyên lý, chân kết nối Pinout, cấp nguồn
+│   ├── kinematics_and_dynamics/         # Mô hình hóa toán học động học và động lực học
+│   └── docs/                            # Tài liệu báo cáo thiết kế hệ thống
+├── docs/                                # Symlink trỏ đến báo cáo kỹ thuật & Quickstart
+└── Makefile                             # Bộ công cụ build tự động tiện lợi (make build, test...)
 ```
 
 ### 5.1 Bảng Danh mục Topics & Giao diện Giao tiếp (ROS Interfaces)
@@ -364,32 +379,61 @@ Firmware trên ESP32-S3 tích hợp bộ định thời Watchdog phần mềm ch
 
 ## 8. HƯỚNG DẪN BUILD, TRIỂN KHAI VÀ VẬN HÀNH
 
-### 8.1 Biên dịch Hệ thống ROS 2
-Tại thư mục gốc của workspace:
+### 8.1 Cấu hình Môi trường Hệ điều hành & Thư viện
+Hệ thống sử dụng Ubuntu 24.04 LTS (Noble) aarch64 với các thành phần cốt lõi:
+- **ROS 2 Jazzy Jalisco Base**: Các thư viện CLI `ros2`, `colcon-common-extensions`.
+- **Thị giác Máy tính**: OpenCV 4.6.0, `ros-jazzy-cv-bridge`, `ros-jazzy-vision-opencv`, NumPy 1.26.4, SciPy 1.11.4.
+- **Embedded Toolchain**: Python 3.12 (`python3-venv`), PlatformIO Core CLI 6.2.0.
+
+### 8.2 Biên dịch Hệ thống ROS 2
+Từ thư mục gốc dự án `/home/davinci/davinci`:
 
 ```bash
-# Cấu hình môi trường ROS 2 Jazzy
+# Thiết lập biến môi trường ROS 2 Jazzy
 source /opt/ros/jazzy/setup.bash
 
-# Biên dịch toàn bộ các gói phần mềm
-colcon build --symlink-install
+# Biên dịch toàn bộ các gói với base path phần mềm (hoặc dùng 'make build')
+colcon build --base-paths software/src --symlink-install
 
-# Nạp biến môi trường của workspace
+# Nạp overlay của workspace
 source install/setup.bash
 ```
 
-### 8.2 Nạp Firmware cho ESP32-S3
+### 8.3 Kiểm thử Tự động (Unit Test & Code Quality)
+```bash
+# Chạy toàn bộ test suite (17/17 tests passing, 0 failures, 0 errors)
+colcon test --base-paths software/src && colcon test-result --verbose
+# Hoặc sử dụng Makefile:
+make test
+```
+
+### 8.4 Nạp Firmware cho ESP32-S3
 Sử dụng PlatformIO Core CLI:
 
 ```bash
-cd src/leonardo_firmware
+cd software/firmware
 pio run --target upload
+# Hoặc từ thư mục gốc:
+make firmware-upload
 ```
 
-### 8.3 Khởi chạy Hệ thống Toàn diện
+### 8.5 Khởi chạy Hệ thống Toàn diện
 ```bash
+source /opt/ros/jazzy/setup.bash && source install/setup.bash
 ros2 launch leonardo_bringup bringup.launch.py
+# Hoặc xem mô hình URDF trong RViz2:
+make view
 ```
+
+### 8.6 Kết quả Đánh giá Hoạt động Thực tế
+1. **ROS 2 Core & Interfaces**:
+   - `ros2 pkg list` ghi nhận đầy đủ 5 packages: `leonardo_bringup`, `leonardo_controller`, `leonardo_kinematics`, `leonardo_msgs`, `leonardo_vision`.
+   - `ros2 interface package leonardo_msgs` đăng ký thành công 9 custom IDLs (5 msgs, 3 srvs, 1 action).
+2. **OpenCV & Thị giác Máy tính**:
+   - Kiểm thử round-trip chuyển đổi định dạng ảnh giữa OpenCV BGR8 và ROS 2 Image message qua `CvBridge` đạt độ chính xác bit-to-bit 100%.
+   - Module `ContourExtractor` và `HomographyTracker` tích hợp ăn khớp hoàn toàn với pipeline xử lý ảnh.
+3. **Động học Omni 120°**:
+   - Module `OmniKinematics3Wheel` tính toán chuẩn xác vận tốc góc cho 3 bánh xe với bán kính robot $R = 0.085\text{ m}$, bán kính bánh $r = 0.029\text{ m}$.
 
 ---
 

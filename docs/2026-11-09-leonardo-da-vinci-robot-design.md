@@ -1,0 +1,1 @@
+../machine_design_and_modeling/docs/2026-11-09-leonardo-da-vinci-robot-design.md
