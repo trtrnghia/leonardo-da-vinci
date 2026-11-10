@@ -20,16 +20,16 @@ jobs:
           apt-get update
           apt-get install -y python3-pip python3-pytest python3-numpy python3-serial
           rosdep update
-          rosdep install --from-paths src --ignore-src -r -y
+          rosdep install --from-paths software/src --ignore-src -r -y
 
       - name: Build workspace
         run: |
           . /opt/ros/jazzy/setup.sh
-          colcon build --symlink-install
+          colcon build --base-paths software/src --symlink-install
 
       - name: Run unit tests
         run: |
           . /opt/ros/jazzy/setup.sh
           . install/setup.sh
-          colcon test
+          colcon test --base-paths software/src
           colcon test-result --verbose
