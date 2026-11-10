@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 ROS_DISTRO := jazzy
 
-.PHONY: all build test clean launch view firmware-build firmware-upload help
+.PHONY: all build test clean launch view firmware-build firmware-upload sim setup help
 
 all: build
 
@@ -11,6 +11,8 @@ help:
 	@echo "  make test            - Run all unit tests with colcon test"
 	@echo "  make launch          - Launch full system with bringup.launch.py"
 	@echo "  make view            - Visualize robot model and TF in RViz2"
+	@echo "  make sim             - Run simulation launch script"
+	@echo "  make setup           - Setup ROS 2 Jazzy workspace environment"
 	@echo "  make firmware-build  - Compile ESP32-S3 PlatformIO firmware"
 	@echo "  make firmware-upload - Upload firmware to ESP32-S3"
 	@echo "  make clean           - Remove build, install, and log directories"
@@ -26,6 +28,12 @@ launch:
 
 view:
 	source /opt/ros/$(ROS_DISTRO)/setup.bash && source install/setup.bash && ros2 launch leonardo_bringup view_robot.launch.py
+
+sim:
+	./scripts/run_sim.sh
+
+setup:
+	source ./scripts/setup_env.sh
 
 firmware-build:
 	cd software/firmware && pio run

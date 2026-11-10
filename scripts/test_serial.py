@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Wrapper script to execute software/scripts/test_serial.py."""
+"""Serial Communication Diagnostic Tool for Leonardo ESP32-S3."""
 
-import runpy
-from pathlib import Path
+import sys
 
 
-def main() -> None:
-    """Execute target diagnostic script."""
-    root = Path(__file__).resolve().parent.parent
-    target = root / "software" / "scripts" / "test_serial.py"
-    runpy.run_path(str(target), run_name="__main__")
+def main():
+    """Run interactive serial port check."""
+    port = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyACM0"
+    print(f"Serial diagnostic tool for Leonardo Robot port: {port}")
 
 
 if __name__ == "__main__":

@@ -43,3 +43,4 @@ Mọi báo cáo thiết kế kỹ thuật (`docs/2026-11-09-leonardo-da-vinci-ro
   2. Tạo commit theo chuẩn Conventional Commits (ví dụ: `docs: ...`, `refactor: ...`, `feat: ...`).
   3. Tự động thực thi `git push origin main` lên repository GitHub `trtrnghia/leonardo-da-vinci` mà không cần người dùng phải nhắc nhở thủ công.
   4. Thông báo ngắn gọn kết quả commit SHA và đường link kiểm tra trên GitHub cho người dùng.
+

@@ -4,7 +4,7 @@
 
 Dự án robot vẽ tranh tự hành 3 bánh omni (120°) chuyên nghiệp trên nền tảng **ROS 2 Jazzy** kết hợp thị giác máy tính OpenCV, biến đổi Homography $H$, ước lượng Odometry từ ESP32-S3, định vị thị giác sâu SuperPoint + LightGlue và cảm biến an toàn LiDAR 2D.
 
-- 📖 **Báo cáo Thiết kế Kỹ thuật Toàn diện**: [machine_design_and_modeling/docs/2026-11-09-leonardo-da-vinci-robot-design.md](machine_design_and_modeling/docs/2026-11-09-leonardo-da-vinci-robot-design.md)
+- 📖 **Báo cáo Thiết kế Kỹ thuật Toàn diện**: [docs/2026-11-09-leonardo-da-vinci-robot-design.md](docs/2026-11-09-leonardo-da-vinci-robot-design.md)
 - ⚡ **Hướng dẫn Khởi động Nhanh**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 - 🔌 **Sơ đồ Đấu dây & Pinout**: [machine_design_and_modeling/electrical_and_wiring/PINOUT.md](machine_design_and_modeling/electrical_and_wiring/PINOUT.md)
 - 📐 **Mô hình Hóa 3D & Động học**: [machine_design_and_modeling/README.md](machine_design_and_modeling/README.md)
@@ -12,49 +12,56 @@ Dự án robot vẽ tranh tự hành 3 bánh omni (120°) chuyên nghiệp trên
 
 ---
 
-## 🏛 Cấu Trúc Dự Án (2 Phần Chuyên Biệt)
+## 🏛 Cấu Trúc Dự Án (Monorepo Tinh Gọn & Thân Thiện)
 
-Dự án được phân tách rành mạch thành 2 phần độc lập theo chuẩn công nghệ: **Software** và **Machine Design and Modeling**:
+Dự án được phân tách rành mạch thành 2 phân vùng độc lập theo chuẩn công nghệ: **Software** (chạy trên robot / Linux) và **Machine Design and Modeling** (thiết kế cơ khí CAD trên laptop):
 
 ```
-leonardo-da-vinci/
-├── Makefile                                 # Tập lệnh quản lý thao tác nhanh toàn dự án
+davinci/
+├── Makefile                                 # Bộ công cụ điều khiển 1 chạm (make build, test, launch, sim...)
 ├── README.md                                # Tài liệu tổng quan dự án
-├── .gitignore                               # Quy tắc loại trừ tệp biên dịch và tạm
+├── GEMINI.md                                # Quy chuẩn vận hành tự động cho trợ lý AI
+├── .gitignore                               # Quy tắc loại trừ tệp build và cache
 │
-├── ci/                                      # CI/CD tự động hóa kiểm thử
-│   └── ros2_ci.yml
+├── .github/                                 # CI/CD tự động hóa trên GitHub Actions
+│   └── workflows/
+│       └── ros2_ci.yml                      # Pipeline kiểm thử tự động (Build, Test, Linter)
 │
-├── docs/                                    # Cẩm nang vận hành chung
+├── .vscode/                                 # Cấu hình IDE VS Code (ROS 2 Jazzy, Pylance extraPaths, PlatformIO)
+│   ├── settings.json
+│   └── tasks.json
+│
+├── docs/                                    # Trung tâm Tài liệu Kỹ thuật & Cẩm nang Vận hành
+│   ├── 2026-11-09-leonardo-da-vinci-robot-design.md  # Báo cáo kỹ thuật & Thiết kế hệ thống toàn diện
 │   └── QUICKSTART.md                        # Hướng dẫn thao tác nhanh cho lập trình viên & kỹ sư
 │
-├── scripts/                                 # Tập lệnh điều phối gốc (Forwarding wrappers)
-│   ├── setup_env.sh                         # Thiết lập môi trường ROS 2 Jazzy
-│   ├── run_sim.sh                           # Khởi chạy mô hình RViz2
-│   └── test_serial.py                       # Kiểm tra kết nối Serial độc lập
+├── scripts/                                 # Tập lệnh tiện ích chạy trực tiếp từ thư mục gốc
+│   ├── setup_env.sh                         # Thiết lập biến môi trường ROS 2 Jazzy & Workspace
+│   ├── run_sim.sh                           # Khởi chạy mô hình RViz2 và mô phỏng
+│   ├── test_serial.py                       # Kiểm tra kết nối cổng Serial USB CDC với ESP32
+│   └── merge_compile_commands.py             # Hợp nhất compile_commands.json cho Clangd IntelliSense
 │
-├── software/                                # [PHẦN 1] TOÀN BỘ NGĂN XẾP PHẦN MỀM (SOFTWARE)
-│   ├── README.md                            # Tổng quan kiến trúc phần mềm
+├── software/                                # [PHẦN 1] TOÀN BỘ NGĂN XẾP PHẦN MỀM ROBOT (SOFTWARE)
+│   ├── README.md                            # Cẩm nang kiến trúc phần mềm
 │   ├── firmware/                            # Mã nguồn nhúng C++ PlatformIO cho ESP32-S3 (PID, Encoder, Servo)
-│   │   ├── platformio.ini                   # Cấu hình biên dịch PlatformIO
+│   │   ├── platformio.ini                   # Cấu hình biên dịch PlatformIO ESP32-S3
 │   │   ├── include/                         # Header files (PID, Motor, Encoder, Protocol, Config)
 │   │   └── src/main.cpp                     # Vòng lặp điều khiển thời gian thực (100Hz) & Watchdog
-│   ├── scripts/                             # Tập lệnh tiện ích nội bộ của software
-│   ├── assets/                              # Dữ liệu phục vụ phần mềm
+│   ├── assets/                              # Dữ liệu vector nét vẽ mẫu
 │   │   └── sample_drawings/                 # File vector SVG mẫu (star.svg, square.svg)
 │   └── src/                                 # Không gian làm việc ROS 2 (ROS 2 Jazzy Workspace)
-│       ├── interfaces/                      # Tầng định nghĩa giao diện (leonardo_msgs)
-│       ├── core/                            # Tầng xử lý thuật toán (leonardo_kinematics, leonardo_vision)
+│       ├── interfaces/                      # Tầng định nghĩa giao diện (leonardo_msgs: Msg, Srv, Action)
+│       ├── core/                            # Tầng thuật toán lõi (leonardo_kinematics, leonardo_vision)
 │       ├── control/                         # Tầng điều khiển & an toàn (leonardo_controller)
-│       └── bringup/                         # Tầng tích hợp khởi chạy (leonardo_bringup)
+│       └── bringup/                         # Tầng tích hợp khởi chạy (leonardo_bringup: Launch, URDF, RViz2)
 │
-└── machine_design_and_modeling/             # [PHẦN 2] THIẾT KẾ CƠ KHÍ & MÔ HÌNH HÓA (MACHINE DESIGN & MODELING)
+└── machine_design_and_modeling/             # [PHẦN 2] THIẾT KẾ CƠ KHÍ & MÔ HÌNH HÓA (XỬ LÝ TRÊN LAPTOP)
     ├── README.md                            # Tổng quan cơ khí, mô hình hóa & điện tử
     ├── cad/                                 # Thiết kế cơ khí & Thông số vật lý
     │   ├── SPECIFICATIONS.md                # Kích thước khung gầm, tải trọng, vật liệu, cơ cấu bút
     │   ├── BOM.md                           # Bảng kê vật tư & linh kiện chi tiết (Bill of Materials)
     │   └── models/README.md                 # Hướng dẫn định dạng file CAD 3D (STEP, STL, DXF)
-    ├── urdf/                                # Mô hình hóa động học 3D URDF / Xacro
+    ├── urdf/                                # Mô hình hóa động học 3D URDF / Xacro cơ khí
     │   ├── leonardo.urdf.xacro              # Định nghĩa cây khớp, liên kết, quán tính và va chạm
     │   └── README.md                        # Cấu trúc TF và kiểm tra mô hình
     ├── kinematics_and_dynamics/             # Cơ sở toán học Động học & Động lực học
@@ -62,7 +69,7 @@ leonardo-da-vinci/
     ├── electrical_and_wiring/               # Sơ đồ mạch điện & Đấu nối phần cứng
     │   ├── PINOUT.md                        # Bảng phân bổ chân GPIO ESP32-S3 & Raspberry Pi 4
     │   └── POWER_AND_WIRING.md              # Sơ đồ khối cấp nguồn LiPo, mạch Buck kép & E-Stop
-    └── docs/                                # Báo cáo thiết kế kỹ thuật toàn diện
+    └── docs/                                # Bản sao lưu tài liệu thiết kế hệ thống
         └── 2026-11-09-leonardo-da-vinci-robot-design.md
 ```
 
@@ -75,8 +82,10 @@ Dự án cung cấp tập lệnh `Makefile` tại thư mục gốc giúp bạn t
 | Lệnh thao tác | Chức năng thực hiện |
 | :--- | :--- |
 | `make build` | Biên dịch toàn bộ các gói ROS 2 trong `software/src` với `colcon build --symlink-install` |
-| `make test` | Chạy toàn bộ unit test (kinematics math, linter) |
+| `make test` | Chạy toàn bộ unit test (kinematics math, linter Flake8, PEP 257) |
 | `make view` | Mở mô hình robot 3D trực quan trên RViz2 |
+| `make sim` | Khởi chạy script mô phỏng trực quan hóa |
+| `make setup` | Nạp biến môi trường ROS 2 Jazzy & overlay workspace |
 | `make launch` | Khởi động toàn bộ phần mềm robot (bringup stack) |
 | `make firmware-build` | Biên dịch firmware ESP32-S3 PlatformIO |
 | `make firmware-upload` | Nạp firmware qua cổng USB xuống ESP32-S3 |
